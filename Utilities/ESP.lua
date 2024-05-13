@@ -276,7 +276,7 @@ function ESP:Add(obj, options)
     local box = setmetatable({
         Name = options.Name or obj.Name,
         Type = "Box",
-        Color = options.Color --[[or self:GetColor(obj)]],
+        Color = options.Color or self.Color,
         Size = options.Size or self.BoxSize,
         Object = obj,
         Player = options.Player or plrs:GetPlayerFromCharacter(obj),
@@ -294,33 +294,34 @@ function ESP:Add(obj, options)
 
     box.Components["Quad"] = Draw("Quad", {
         Thickness = self.Thickness,
-        Color = color,
+        Color = box.Color,
         Transparency = 1,
         Filled = false,
         Visible = self.Enabled and self.Boxes
     })
     box.Components["Name"] = Draw("Text", {
-		Text = box.Name,
-		Color = box.Color,
-		Center = true,
-		Outline = true,
+        Text = box.Name,
+        Color = box.Color,
+        Center = true,
+        Outline = true,
         Size = 19,
         Visible = self.Enabled and self.Names
-	})
-	box.Components["Distance"] = Draw("Text", {
-		Color = box.Color,
-		Center = true,
-		Outline = true,
+    })
+    box.Components["Distance"] = Draw("Text", {
+        Color = box.Color,
+        Center = true,
+        Outline = true,
         Size = 19,
         Visible = self.Enabled and self.Names
-	})
-	
-	box.Components["Tracer"] = Draw("Line", {
-		Thickness = ESP.Thickness,
-		Color = box.Color,
+    })
+    
+    box.Components["Tracer"] = Draw("Line", {
+        Thickness = ESP.Thickness,
+        Color = box.Color,
         Transparency = 1,
         Visible = self.Enabled and self.Tracers
     })
+    
     self.Objects[obj] = box
     
     obj.AncestryChanged:Connect(function(_, parent)
@@ -335,16 +336,27 @@ function ESP:Add(obj, options)
     end)
 
     local hum = obj:FindFirstChildOfClass("Humanoid")
-	if hum then
+    if hum then
         hum.Died:Connect(function()
             if ESP.AutoRemove ~= false then
                 box:Remove()
             end
-		end)
+        end)
+    end
+
+    if ESP.Chams then
+        local cham = Instance.new("Highlight")
+        cham.Parent = obj
+        cham.FillColor = self.Color
+        cham.OutlineColor = self.Color
+        cham.FillTransparency = ESP.ChamTransparency
+        cham.Adornee = obj
+        cham.Enabled = ESP.Chams
     end
 
     return box
 end
+
 
 local function CharAdded(char)
     local p = plrs:GetPlayerFromCharacter(char)

@@ -142,19 +142,42 @@ end
 
 local boxBase = {}
 boxBase.__index = boxBase
-
 function boxBase:Remove()
-    ESP.Objects[self.Object] = nil
-    for i,v in pairs(self.Components) do
-        v.Visible = false
-        v:Remove()
-        self.Components[i] = nil
+    if self.Components.Quad then
+        self.Components.Quad.Visible = false
+        self.Components.Quad:Remove()
+        self.Components.Quad = nil
     end
+
+    if self.Components.Name then
+        self.Components.Name.Visible = false
+        self.Components.Name:Remove()
+        self.Components.Name = nil
+    end
+
+    if self.Components.Distance then
+        self.Components.Distance.Visible = false
+        self.Components.Distance:Remove()
+        self.Components.Distance = nil
+    end
+
+    if self.Components.Tracer then
+        self.Components.Tracer.Visible = false
+        self.Components.Tracer:Remove()
+        self.Components.Tracer = nil
+    end
+
+    if self.Chams then
+        self.Chams.Visible = false
+        self.Chams:Remove()
+        self.Chams = nil
+    end
+
+    ESP.Objects[self.Object] = nil
 end
 
 function boxBase:Update()
     if not self.PrimaryPart then
-        --warn("not supposed to print", self.Object)
         return self:Remove()
     end
 
@@ -186,6 +209,9 @@ function boxBase:Update()
         for i,v in pairs(self.Components) do
             v.Visible = false
         end
+        if self.Chams then
+            self.Chams.Visible = false
+        end
         return
     end
 
@@ -193,6 +219,16 @@ function boxBase:Update()
         color = ESP.HighlightColor
     end
 
+    -- Update chams here based on ESP.Chams setting
+    if self.Chams then
+        self.Chams.FillColor = color
+        self.Chams.OutlineColor = color
+        self.Chams.FillTransparency = ESP.Chams and ESP.ChamTransparency or 1
+        self.Chams.OutlineTransparency = 0
+        self.Chams.Adornee = self.PrimaryPart
+        self.Chams.Enabled = ESP.Chams
+        self.Chams.Visible = self.Enabled and ESP.Chams
+    end
     --calculations--
     local cf = self.PrimaryPart.CFrame
     if ESP.FaceCamera then

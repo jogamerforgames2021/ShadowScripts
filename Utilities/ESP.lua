@@ -3,7 +3,7 @@ local ESP = {
     Enabled = false,
     Boxes = true,
     BoxShift = CFrame.new(0,-1.5,0),
-	BoxSize = Vector3.new(4,6,0),
+    BoxSize = Vector3.new(4,6,0),
     Color = Color3.fromRGB(255, 170, 0),
     FaceCamera = false,
     Names = true,
@@ -12,7 +12,9 @@ local ESP = {
     AttachShift = 1,
     TeamMates = true,
     Players = true,
-    
+    Chams = true,  -- New setting for chams
+    ChamsTransparency = 0.5,  -- New setting for chams transparency
+
     Objects = setmetatable({}, {__mode="kv"}),
     Overrides = {}
 }
@@ -94,6 +96,7 @@ function ESP:GetBox(obj)
     return self.Objects[obj]
 end
 
+-- Modify the AddObjectListener function to include chams
 function ESP:AddObjectListener(parent, options)
     local function NewListener(c)
         if type(options.Type) == "string" and c:IsA(options.Type) or options.Type == nil then
@@ -107,7 +110,15 @@ function ESP:AddObjectListener(parent, options)
                         IsEnabled = options.IsEnabled,
                         RenderInNil = options.RenderInNil
                     })
-                    --TODO: add a better way of passing options
+
+                    if ESP.Chams then
+                        local cham = Instance.new("Highlight")
+                        cham.Parent = c
+                        cham.FillColor = ESP.Color
+                        cham.OutlineColor = ESP.Color
+                        cham.FillTransparency = ESP.ChamTransparency
+                    end
+
                     if options.OnAdded then
                         coroutine.wrap(options.OnAdded)(box)
                     end

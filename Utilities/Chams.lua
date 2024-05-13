@@ -1,61 +1,60 @@
--- HighlightModule.lua
-
 local HighlightModule = {}
 
--- Default settings
-local Settings = {
+-- Settings
+HighlightModule.Settings = {
     Enabled = true,
     FillTransparency = 0.5,
     OutlineTransparency = 0.5,
     OutlineColor = Color3.new(1, 1, 1),
-    FillColor = Color3.new(1, 1, 1),
+    FillColor = Color3.new(1, 1, 1)
 }
 
--- Create highlights for all players except the local player
-function HighlightModule:Initialize()
-    for _, player in ipairs(game.Players:GetPlayers()) do
-        if player ~= game.Players.LocalPlayer then
-            local character = player.Character
-            if character then
-                local highlight = Instance.new("Highlight")
-                highlight.Adornee = character
-                highlight.FillTransparency = Settings.FillTransparency
-                highlight.OutlineTransparency = Settings.OutlineTransparency
-                highlight.OutlineColor = Settings.OutlineColor
-                highlight.FillColor = Settings.FillColor
-                highlight.Enabled = Settings.Enabled
-                highlight.Parent = character
-                print("Created highlight for player:", player.Name)
-            end
-        end
+-- Internal
+local Players = game:GetService("Players")
+local HighlightService = game:GetService("Highlight")
+local HighlightObjects = {}
+
+-- Create Highlight
+function HighlightModule.CreateHighlight(player)
+    if not player.Character or HighlightObjects[player.UserId] then
+        return
+    end
+
+    local character = player.Character
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    if not humanoid then
+        return
+    end
+
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "PlayerHighlight"
+    highlight.Parent = character
+    highlight.Enabled = HighlightModule.Settings.Enabled
+    highlight.FillTransparency = HighlightModule.Settings.FillTransparency
+    highlight.OutlineTransparency = HighlightModule.Settings.OutlineTransparency
+    highlight.OutlineColor = HighlightModule.Settings.OutlineColor
+    highlight.FillColor = HighlightModule.Settings.FillColor
+
+    HighlightObjects[player.UserId] = highlight
+
+    humanoid.Died:Connect(function()
+        HighlightObjects[player.UserId] = nil
+        highlight:Destroy()
+    end)
+end
+
+-- Initialize Highlights for existing players
+for _, player in ipairs(Players:GetPlayers()) do
+    if player ~= Players.LocalPlayer then
+        HighlightModule.CreateHighlight(player)
     end
 end
 
--- Toggle the highlights for all players except the local player
-function HighlightModule:SetEnabled(enabled)
-    Settings.Enabled = enabled
-    for _, player in ipairs(game.Players:GetPlayers()) do
-        if player ~= game.Players.LocalPlayer then
-            local character = player.Character
-            if character then
-                local highlight = character:FindFirstChildOfClass("Highlight")
-                if highlight then
-                    highlight.Enabled = enabled
-                    print("Highlight for player", player.Name, "is now", enabled and "enabled" or "disabled")
-                end
-            end
-        end
+-- Player Added Event
+Players.PlayerAdded:Connect(function(player)
+    if player ~= Players.LocalPlayer then
+        HighlightModule.CreateHighlight(player)
     end
-end
-
--- Update settings
-function HighlightModule:SetSettings(settings)
-    for key, value in pairs(settings) do
-        if Settings[key] ~= nil then
-            Settings[key] = value
-        end
-    end
-    print("Updated highlight settings")
-end
+end)
 
 return HighlightModule

@@ -135,8 +135,8 @@ local boxBase = {}
 boxBase.__index = boxBase
 
 function ESP:AddHighlight(parent)
+
     local highlight = Instance.new("Highlight")
-    highlight.Adornee = parent
     highlight.FillColor = ESP.Color
     highlight.FillTransparency = ESP.FillTransparency
     highlight.OutlineColor = ESP.Color
@@ -145,6 +145,7 @@ function ESP:AddHighlight(parent)
     highlight.Parent = parent
     return highlight
 end
+
 
 
 function boxBase:EnableHighlight()

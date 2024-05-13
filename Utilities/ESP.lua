@@ -210,7 +210,8 @@ function boxBase:Update()
             v.Visible = false
         end
         if self.Chams then
-            self.Chams.Visible = false
+            self.Chams:Remove()  -- Remove chams if not allowed
+            self.Chams = nil
         end
         return
     end
@@ -220,14 +221,21 @@ function boxBase:Update()
     end
 
     -- Update chams here based on ESP.Chams setting
-    if self.Chams then
-        self.Chams.FillColor = color
-        self.Chams.OutlineColor = color
-        self.Chams.FillTransparency = ESP.Chams and ESP.ChamTransparency or 1
-        self.Chams.OutlineTransparency = 0
-        self.Chams.Adornee = self.PrimaryPart
-        self.Chams.Enabled = ESP.Chams
-        self.Chams.Visible = self.Enabled and ESP.Chams
+    if ESP.Chams then
+        if not self.Chams then
+            self.Chams = Instance.new("Highlight")
+            self.Chams.Parent = self.Object
+            self.Chams.FillColor = color
+            self.Chams.OutlineColor = color
+            self.Chams.Transparency = ESP.ChamTransparency
+        else
+            self.Chams.FillColor = color
+            self.Chams.OutlineColor = color
+            self.Chams.Transparency = ESP.ChamTransparency
+        end
+    elseif self.Chams then
+        self.Chams:Remove()  -- Remove chams if not enabled
+        self.Chams = nil
     end
     --calculations--
     local cf = self.PrimaryPart.CFrame

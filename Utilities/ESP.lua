@@ -95,31 +95,6 @@ function ESP:GetBox(obj)
     return self.Objects[obj]
 end
 
-function ESP:AddHighlight(parent)
-    local highlight = Instance.new("Highlight")
-    highlight.Adornee = parent
-    highlight.FillColor = ESP.Color
-    highlight.FillTransparency = ESP.FillTransparency
-    highlight.OutlineColor = ESP.Color
-    highlight.OutlineTransparency = ESP.OutlineTransparency
-    highlight.Enabled = ESP.Highlight
-    highlight.Parent = parent
-    return highlight
-end
-
-
-function boxBase:EnableHighlight()
-    if not self.Components.Highlight then
-        self.Components.Highlight = ESP:AddHighlight(self.Components.Quad)
-    end
-    self.Components.Highlight.Enabled = true
-end
-
-function boxBase:DisableHighlight()
-    if self.Components.Highlight then
-        self.Components.Highlight.Enabled = false
-    end
-end
 
 function ESP:AddObjectListener(parent, options)
     local function NewListener(c)
@@ -158,6 +133,33 @@ end
 
 local boxBase = {}
 boxBase.__index = boxBase
+
+function ESP:AddHighlight(parent)
+    local highlight = Instance.new("Highlight")
+    highlight.Adornee = parent
+    highlight.FillColor = ESP.Color
+    highlight.FillTransparency = ESP.FillTransparency
+    highlight.OutlineColor = ESP.Color
+    highlight.OutlineTransparency = ESP.OutlineTransparency
+    highlight.Enabled = ESP.Highlight
+    highlight.Parent = parent
+    return highlight
+end
+
+
+function boxBase:EnableHighlight()
+    if not self.Components.Highlight then
+        self.Components.Highlight = ESP:AddHighlight(self.Components.Quad)
+    end
+    self.Components.Highlight.Enabled = true
+end
+
+function boxBase:DisableHighlight()
+    if self.Components.Highlight then
+        self.Components.Highlight.Enabled = false
+    end
+end
+
 
 function boxBase:Remove()
     ESP.Objects[self.Object] = nil

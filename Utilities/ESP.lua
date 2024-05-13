@@ -1,9 +1,9 @@
--- Settings
+--Settings--
 local ESP = {
     Enabled = false,
     Boxes = true,
-    BoxShift = CFrame.new(0, -1.5, 0),
-    BoxSize = Vector3.new(4, 6, 0),
+    BoxShift = CFrame.new(0,-1.5,0),
+	BoxSize = Vector3.new(4,6,0),
     Color = Color3.fromRGB(255, 170, 0),
     FaceCamera = false,
     Names = true,
@@ -12,12 +12,11 @@ local ESP = {
     AttachShift = 1,
     TeamMates = true,
     Players = true,
-    Highlight = false,
-    OutlineTransparency = 0,
-    FillTransparency = 1,
+    
     Objects = setmetatable({}, {__mode="kv"}),
     Overrides = {}
 }
+
 --Declarations--
 local cam = workspace.CurrentCamera
 local plrs = game:GetService("Players")
@@ -95,7 +94,6 @@ function ESP:GetBox(obj)
     return self.Objects[obj]
 end
 
-
 function ESP:AddObjectListener(parent, options)
     local function NewListener(c)
         if type(options.Type) == "string" and c:IsA(options.Type) or options.Type == nil then
@@ -133,37 +131,6 @@ end
 
 local boxBase = {}
 boxBase.__index = boxBase
-
-function ESP:AddHighlight(parent)
-    local highlight = Instance.new("Highlight")
-    highlight.Adornee = parent
-    highlight.FillColor = ESP.Color
-    highlight.FillTransparency = ESP.FillTransparency
-    highlight.OutlineColor = ESP.Color
-    highlight.OutlineTransparency = ESP.OutlineTransparency
-    highlight.Enabled = ESP.Highlight
-    highlight.Parent = parent
-    return highlight
-end
-
-
-
-
-function boxBase:EnableHighlight()
-    if not self.Components.Highlight then
-        print("Parent for highlight:", self.Components.Quad)
-        self.Components.Highlight = ESP:AddHighlight(self.Components.Quad)
-    end
-    self.Components.Highlight.Enabled = true
-end
-
-
-function boxBase:DisableHighlight()
-    if self.Components.Highlight then
-        self.Components.Highlight.Enabled = false
-    end
-end
-
 
 function boxBase:Remove()
     ESP.Objects[self.Object] = nil
@@ -288,12 +255,6 @@ function boxBase:Update()
     else
         self.Components.Tracer.Visible = false
     end
-    if ESP.Highlight then
-        self:EnableHighlight()
-    else
-        self:DisableHighlight()
-    end
-
 end
 
 function ESP:Add(obj, options)
@@ -376,29 +337,26 @@ end
 
 local function CharAdded(char)
     local p = plrs:GetPlayerFromCharacter(char)
-    if p then
-        if not char:FindFirstChild("HumanoidRootPart") then
-            local ev
-            ev = char.ChildAdded:Connect(function(c)
-                if c.Name == "HumanoidRootPart" then
-                    ev:Disconnect()
-                    ESP:Add(char, {
-                        Name = p.Name,
-                        Player = p,
-                        PrimaryPart = c
-                    })
-                end
-            end)
-        else
-            ESP:Add(char, {
-                Name = p.Name,
-                Player = p,
-                PrimaryPart = char.HumanoidRootPart
-            })
-        end
+    if not char:FindFirstChild("HumanoidRootPart") then
+        local ev
+        ev = char.ChildAdded:Connect(function(c)
+            if c.Name == "HumanoidRootPart" then
+                ev:Disconnect()
+                ESP:Add(char, {
+                    Name = p.Name,
+                    Player = p,
+                    PrimaryPart = c
+                })
+            end
+        end)
+    else
+        ESP:Add(char, {
+            Name = p.Name,
+            Player = p,
+            PrimaryPart = char.HumanoidRootPart
+        })
     end
 end
-
 local function PlayerAdded(p)
     p.CharacterAdded:Connect(CharAdded)
     if p.Character then

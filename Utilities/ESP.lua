@@ -3,7 +3,7 @@ local ESP = {
     Enabled = false,
     Boxes = true,
     BoxShift = CFrame.new(0,-1.5,0),
-    BoxSize = Vector3.new(4,6,0),
+	BoxSize = Vector3.new(4,6,0),
     Color = Color3.fromRGB(255, 170, 0),
     FaceCamera = false,
     Names = true,
@@ -12,9 +12,7 @@ local ESP = {
     AttachShift = 1,
     TeamMates = true,
     Players = true,
-    Chams = true,  -- New setting for chams
-    ChamsTransparency = 0.5,  -- New setting for chams transparency
-
+    
     Objects = setmetatable({}, {__mode="kv"}),
     Overrides = {}
 }
@@ -96,7 +94,6 @@ function ESP:GetBox(obj)
     return self.Objects[obj]
 end
 
--- Modify the AddObjectListener function to include chams
 function ESP:AddObjectListener(parent, options)
     local function NewListener(c)
         if type(options.Type) == "string" and c:IsA(options.Type) or options.Type == nil then
@@ -110,9 +107,7 @@ function ESP:AddObjectListener(parent, options)
                         IsEnabled = options.IsEnabled,
                         RenderInNil = options.RenderInNil
                     })
-
-                
-
+                    --TODO: add a better way of passing options
                     if options.OnAdded then
                         coroutine.wrap(options.OnAdded)(box)
                     end
@@ -136,42 +131,19 @@ end
 
 local boxBase = {}
 boxBase.__index = boxBase
+
 function boxBase:Remove()
-    if self.Components.Quad then
-        self.Components.Quad.Visible = false
-        self.Components.Quad:Remove()
-        self.Components.Quad = nil
-    end
-
-    if self.Components.Name then
-        self.Components.Name.Visible = false
-        self.Components.Name:Remove()
-        self.Components.Name = nil
-    end
-
-    if self.Components.Distance then
-        self.Components.Distance.Visible = false
-        self.Components.Distance:Remove()
-        self.Components.Distance = nil
-    end
-
-    if self.Components.Tracer then
-        self.Components.Tracer.Visible = false
-        self.Components.Tracer:Remove()
-        self.Components.Tracer = nil
-    end
-
-    if self.Chams then
-        self.Chams.Visible = false
-        self.Chams:Remove()
-        self.Chams = nil
-    end
-
     ESP.Objects[self.Object] = nil
+    for i,v in pairs(self.Components) do
+        v.Visible = false
+        v:Remove()
+        self.Components[i] = nil
+    end
 end
 
 function boxBase:Update()
     if not self.PrimaryPart then
+        --warn("not supposed to print", self.Object)
         return self:Remove()
     end
 
@@ -203,10 +175,6 @@ function boxBase:Update()
         for i,v in pairs(self.Components) do
             v.Visible = false
         end
-        if self.Chams then
-            self.Chams:Remove()  -- Remove chams if not allowed
-            self.Chams = nil
-        end
         return
     end
 
@@ -214,24 +182,6 @@ function boxBase:Update()
         color = ESP.HighlightColor
     end
 
-    if ESP.Chams then
-        if not self.Chams then
-            self.Chams = Instance.new("Highlight")
-            self.Chams.Parent = self.Object
-            self.Chams.FillColor = color
-            self.Chams.OutlineColor = color
-            self.Chams.FillTransparency = ESP.ChamTransparency
-        else
-            self.Chams.FillColor = color
-            self.Chams.OutlineColor = color
-            self.Chams.FillTransparency = ESP.ChamTransparency
-        end
-        self.Chams.Enabled = true
-    elseif self.Chams then
-        self.Chams:Remove()  -- Remove chams if not enabled
-        self.Chams = nil
-    end
-    
     --calculations--
     local cf = self.PrimaryPart.CFrame
     if ESP.FaceCamera then
@@ -315,7 +265,7 @@ function ESP:Add(obj, options)
     local box = setmetatable({
         Name = options.Name or obj.Name,
         Type = "Box",
-        Color = options.Color or self.Color,
+        Color = options.Color --[[or self:GetColor(obj)]],
         Size = options.Size or self.BoxSize,
         Object = obj,
         Player = options.Player or plrs:GetPlayerFromCharacter(obj),
@@ -333,34 +283,33 @@ function ESP:Add(obj, options)
 
     box.Components["Quad"] = Draw("Quad", {
         Thickness = self.Thickness,
-        Color = box.Color,
+        Color = color,
         Transparency = 1,
         Filled = false,
         Visible = self.Enabled and self.Boxes
     })
     box.Components["Name"] = Draw("Text", {
-        Text = box.Name,
-        Color = box.Color,
-        Center = true,
-        Outline = true,
+		Text = box.Name,
+		Color = box.Color,
+		Center = true,
+		Outline = true,
         Size = 19,
         Visible = self.Enabled and self.Names
-    })
-    box.Components["Distance"] = Draw("Text", {
-        Color = box.Color,
-        Center = true,
-        Outline = true,
+	})
+	box.Components["Distance"] = Draw("Text", {
+		Color = box.Color,
+		Center = true,
+		Outline = true,
         Size = 19,
         Visible = self.Enabled and self.Names
-    })
-    
-    box.Components["Tracer"] = Draw("Line", {
-        Thickness = ESP.Thickness,
-        Color = box.Color,
+	})
+	
+	box.Components["Tracer"] = Draw("Line", {
+		Thickness = ESP.Thickness,
+		Color = box.Color,
         Transparency = 1,
         Visible = self.Enabled and self.Tracers
     })
-    
     self.Objects[obj] = box
     
     obj.AncestryChanged:Connect(function(_, parent)
@@ -375,27 +324,16 @@ function ESP:Add(obj, options)
     end)
 
     local hum = obj:FindFirstChildOfClass("Humanoid")
-    if hum then
+	if hum then
         hum.Died:Connect(function()
             if ESP.AutoRemove ~= false then
                 box:Remove()
             end
-        end)
+		end)
     end
-    --[[
-    if ESP.Chams then
-        local cham = Instance.new("Highlight")
-        cham.Parent = obj
-        cham.FillColor = self.Color
-        cham.OutlineColor = self.Color
-        cham.FillTransparency = ESP.ChamTransparency
-        cham.Adornee = obj
-        cham.Enabled = ESP.Chams
-    end
-    ]]
+
     return box
 end
-
 
 local function CharAdded(char)
     local p = plrs:GetPlayerFromCharacter(char)
@@ -437,7 +375,7 @@ game:GetService("RunService").RenderStepped:Connect(function()
     for i,v in (ESP.Enabled and pairs or ipairs)(ESP.Objects) do
         if v.Update then
             local s,e = pcall(v.Update, v)
-            if not s then warn("[EU]", e, v.Object:GetFullName()) end
+            if not s then warn("[Shadow ESP]", e, v.Object:GetFullName()) end
         end
     end
 end)

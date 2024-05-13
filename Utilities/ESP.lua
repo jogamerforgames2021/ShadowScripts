@@ -220,11 +220,11 @@ function boxBase:Update()
             self.Chams.Parent = self.Object
             self.Chams.FillColor = color
             self.Chams.OutlineColor = color
-            self.Chams.Transparency = ESP.ChamTransparency
+            self.Chams.FillTransparency = ESP.ChamTransparency
         else
             self.Chams.FillColor = color
             self.Chams.OutlineColor = color
-            self.Chams.Transparency = ESP.ChamTransparency
+            self.Chams.FillTransparency = ESP.ChamTransparency
         end
         self.Chams.Enabled = true
     elseif self.Chams then

@@ -3,58 +3,43 @@ local HighlightModule = {}
 -- Settings
 HighlightModule.Settings = {
     Enabled = true,
-    FillTransparency = 0.5,
-    OutlineTransparency = 0.5,
-    OutlineColor = Color3.new(1, 1, 1),
-    FillColor = Color3.new(1, 1, 1)
+    FillTransparency = 0,
+    OutlineTransparency = 0,
+    OutlineColor = Color3.fromRGB(255, 255, 255),
+    FillColor = Color3.fromRGB(255, 255, 255),
 }
 
--- Internal
-local Players = game:GetService("Players")
-local HighlightService = game:GetService("Highlight")
-local HighlightObjects = {}
+-- Update function
+function HighlightModule.Update()
+    for _, player in ipairs(game.Players:GetPlayers()) do
+        if player ~= game.Players.LocalPlayer then
+            local character = player.Character
+            if character then
+                local highlight = character:FindFirstChild("Highlight")
+                if not highlight then
+                    highlight = Instance.new("Highlight")
+                    highlight.Name = "Highlight"
+                    highlight.Parent = character
+                end
 
--- Create Highlight
-function HighlightModule.CreateHighlight(player)
-    if not player.Character or HighlightObjects[player.UserId] then
-        return
-    end
-
-    local character = player.Character
-    local humanoid = character:FindFirstChildOfClass("Humanoid")
-    if not humanoid then
-        return
-    end
-
-    local highlight = Instance.new("Highlight")
-    highlight.Name = "PlayerHighlight"
-    highlight.Parent = character
-    highlight.Enabled = HighlightModule.Settings.Enabled
-    highlight.FillTransparency = HighlightModule.Settings.FillTransparency
-    highlight.OutlineTransparency = HighlightModule.Settings.OutlineTransparency
-    highlight.OutlineColor = HighlightModule.Settings.OutlineColor
-    highlight.FillColor = HighlightModule.Settings.FillColor
-
-    HighlightObjects[player.UserId] = highlight
-
-    humanoid.Died:Connect(function()
-        HighlightObjects[player.UserId] = nil
-        highlight:Destroy()
-    end)
-end
-
--- Initialize Highlights for existing players
-for _, player in ipairs(Players:GetPlayers()) do
-    if player ~= Players.LocalPlayer then
-        HighlightModule.CreateHighlight(player)
+                highlight.Enabled = HighlightModule.Settings.Enabled
+                highlight.FillColor = HighlightModule.Settings.FillColor
+                highlight.FillTransparency = HighlightModule.Settings.FillTransparency
+                highlight.OutlineColor = HighlightModule.Settings.OutlineColor
+                highlight.OutlineTransparency = HighlightModule.Settings.OutlineTransparency
+            end
+        end
     end
 end
 
--- Player Added Event
-Players.PlayerAdded:Connect(function(player)
-    if player ~= Players.LocalPlayer then
-        HighlightModule.CreateHighlight(player)
-    end
-end)
+-- Toggle function
+function HighlightModule.Toggle(enabled)
+    HighlightModule.Settings.Enabled = enabled
+    HighlightModule.Update()
+end
+
+-- Example usage
+HighlightModule.Update() -- Initial update
+HighlightModule.Toggle(false) -- Disable highlights
 
 return HighlightModule

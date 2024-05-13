@@ -135,11 +135,6 @@ local boxBase = {}
 boxBase.__index = boxBase
 
 function ESP:AddHighlight(parent)
-    if type(parent) ~= "userdata" or not parent:IsA("BasePart") then
-        warn("Invalid parent for highlight:", parent)
-        return
-    end
-
     local highlight = Instance.new("Highlight")
     highlight.Adornee = parent
     highlight.FillColor = ESP.Color
@@ -156,10 +151,12 @@ end
 
 function boxBase:EnableHighlight()
     if not self.Components.Highlight then
+        print("Parent for highlight:", self.Components.Quad)
         self.Components.Highlight = ESP:AddHighlight(self.Components.Quad)
     end
     self.Components.Highlight.Enabled = true
 end
+
 
 function boxBase:DisableHighlight()
     if self.Components.Highlight then

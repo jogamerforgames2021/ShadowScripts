@@ -41,5 +41,8 @@ end
 -- Example usage
 HighlightModule.Update() -- Initial update
 HighlightModule.Toggle(false) -- Disable highlights
-
+local RunService = game:GetService("RunService")
+RunService.Heartbeat:Connect(function()
+    HighlightModule.Update()
+end)
 return HighlightModule

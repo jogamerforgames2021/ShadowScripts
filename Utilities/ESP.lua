@@ -220,7 +220,6 @@ function boxBase:Update()
         color = ESP.HighlightColor
     end
 
-    -- Update chams here based on ESP.Chams setting
     if ESP.Chams then
         if not self.Chams then
             self.Chams = Instance.new("Highlight")
@@ -233,10 +232,12 @@ function boxBase:Update()
             self.Chams.OutlineColor = color
             self.Chams.Transparency = ESP.ChamTransparency
         end
+        self.Chams.Enabled = true
     elseif self.Chams then
         self.Chams:Remove()  -- Remove chams if not enabled
         self.Chams = nil
     end
+    
     --calculations--
     local cf = self.PrimaryPart.CFrame
     if ESP.FaceCamera then

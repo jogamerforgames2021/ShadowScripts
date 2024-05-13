@@ -111,13 +111,7 @@ function ESP:AddObjectListener(parent, options)
                         RenderInNil = options.RenderInNil
                     })
 
-                    if ESP.Chams then
-                        local cham = Instance.new("Highlight")
-                        cham.Parent = c
-                        cham.FillColor = ESP.Color
-                        cham.OutlineColor = ESP.Color
-                        cham.FillTransparency = ESP.ChamTransparency
-                    end
+                
 
                     if options.OnAdded then
                         coroutine.wrap(options.OnAdded)(box)
@@ -388,7 +382,7 @@ function ESP:Add(obj, options)
             end
         end)
     end
-
+    --[[
     if ESP.Chams then
         local cham = Instance.new("Highlight")
         cham.Parent = obj
@@ -398,7 +392,7 @@ function ESP:Add(obj, options)
         cham.Adornee = obj
         cham.Enabled = ESP.Chams
     end
-
+    ]]
     return box
 end
 

@@ -8,7 +8,7 @@ def generate_key():
 
 def update_gist(key):
     gist_id = os.getenv('GIST_ID')
-    github_token = os.getenv('GITHUB_TOKEN')
+    github_token = os.getenv('GIST_TOKEN')  # Updated secret name
     gist_file_name = "key.lua"
     url = f"https://api.github.com/gists/{gist_id}"
     headers = {

@@ -35,7 +35,10 @@ def main():
     new_key = generate_key()
     if update_gist(new_key):
         print("Gist updated successfully.")
-        notify_discord(f"The key has been updated to: {new_key}")
+        if notify_discord(f"The key has been updated to: {new_key}"):
+            print("Discord notification sent.")
+        else:
+            print("Failed to send Discord notification.")
     else:
         print("Failed to update Gist.")
         notify_discord("Failed to update the key in the Gist.")

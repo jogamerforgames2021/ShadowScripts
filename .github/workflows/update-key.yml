@@ -8,6 +8,7 @@ on:
 jobs:
   update-key:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -21,16 +22,16 @@ jobs:
         run: |
           pip install requests
 
+      - name: Debug environment variables
+        run: |
+          echo "DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}"
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+
       - name: Generate and update key
         run: |
           python update_key.py
         env:
           GIST_ID: ${{ secrets.GIST_ID }}
-          GIST_TOKEN: ${{ secrets.GIST_TOKEN }}  # Ensure this is the correct name
-
-      - name: Notify Discord
-        if: success()  # This runs only if previous steps succeed
-        run: |
-          curl -X POST -H "Content-Type: application/json" -d "{\"content\": \"The key has been updated!\"}" ${{ secrets.DISCORD_WEBHOOK_URL }}
-        env:
+          GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}

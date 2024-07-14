@@ -1,0 +1,29 @@
+name: Update Key
+
+on:
+  schedule:
+    - cron: '0 */5 * * *'  # Runs every 5 hours
+  workflow_dispatch:  # Allows manual trigger
+
+jobs:
+  update-key:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          pip install requests
+
+      - name: Generate and update key
+        run: |
+          python update_key.py
+        env:
+          GIST_ID: ${{ secrets.GIST_ID }}
+          GIST_TOKEN: ${{ secrets.MY_GIST_TOKEN }}  # Use the updated secret name

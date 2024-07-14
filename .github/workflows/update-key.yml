@@ -3,17 +3,17 @@ name: Update Key
 on:
   schedule:
     - cron: '0 */5 * * *'  # Runs every 5 hours
-  workflow_dispatch:  # Allows manual trigger
+  workflow_dispatch:  # Allows manual triggering
 
 jobs:
   update-key:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3  # Updated version
+        uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v3  # Updated version
+        uses: actions/setup-python@v3
         with:
           python-version: '3.x'
 
@@ -26,10 +26,10 @@ jobs:
           python update_key.py
         env:
           GIST_ID: ${{ secrets.GIST_ID }}
-          GIST_TOKEN: ${{ secrets.MY_GIST_TOKEN }}  # Use the updated secret name
+          GIST_TOKEN: ${{ secrets.GIST_TOKEN }}  # Ensure this is the correct name
 
       - name: Notify Discord
-        if: success()  # This step runs only if the previous steps are successful
+        if: success()  # This runs only if previous steps succeed
         run: |
           curl -X POST -H "Content-Type: application/json" -d "{\"content\": \"The key has been updated!\"}" ${{ secrets.DISCORD_WEBHOOK_URL }}
         env:

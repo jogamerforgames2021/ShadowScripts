@@ -27,6 +27,10 @@ def update_gist(key):
 
 def notify_discord(message):
     webhook_url = os.getenv('DISCORD_WEBHOOK_URL')
+    if webhook_url is None:
+        print("Error: DISCORD_WEBHOOK_URL environment variable is not set.")
+        return False
+    print(f"Using webhook URL: {webhook_url}")
     data = {"content": message}
     response = requests.post(webhook_url, json=data)
     return response.ok
